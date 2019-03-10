@@ -3,11 +3,15 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 import re, os
+import configparser
+
 
 chrome_driver_path = "./resources/chromedriver/chromedriver_linux"
 options = Options()
-options.binary_location = "/home/vignesh/proj/dev/resources/chrome-linux/chrome"
-driver = webdriver.Chrome(chrome_options=options, executable_path=chrome_driver_path)
+config = configparser.ConfigParser()
+if 'chrome_binary_location' in config['DEFAULT']:
+    options.binary_location = config['DEFAULT']['chrome_binary_location']
+driver = webdriver.Chrome(options=options, executable_path=chrome_driver_path)
 
 def open_url(url):
     driver.get(url)
