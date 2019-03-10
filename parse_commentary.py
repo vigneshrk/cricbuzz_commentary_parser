@@ -2,11 +2,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
-import re
+import re, os
 
-chrome_driver_path = "./resources/chromedriver/linux/chromedriver"
+chrome_driver_path = "./resources/chromedriver/chromedriver_linux"
 options = Options()
-options.binary_location = "./resources/chrome/chrome-linux/chrome"
+options.binary_location = "/home/vignesh/proj/dev/resources/chrome-linux/chrome"
 driver = webdriver.Chrome(chrome_options=options, executable_path=chrome_driver_path)
 
 def open_url(url):
