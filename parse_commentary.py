@@ -11,6 +11,9 @@ options = Options()
 config = configparser.ConfigParser()
 if 'chrome_binary_location' in config['DEFAULT']:
     options.binary_location = config['DEFAULT']['chrome_binary_location']
+    print('using custom chrome from '+options.binary_location)
+else:
+    print('using default chrome')
 driver = webdriver.Chrome(options=options, executable_path=chrome_driver_path)
 
 def open_url(url):
@@ -30,7 +33,7 @@ def scrap_data():
             inns_btns[key] = elem
             teams.append(key)
 
-    BALL_PATTERN = "([0-9]+.[1-9]\n)"
+    BALL_PATTERN = "([0-9]+\.[1-9]+\\n.+?, )"
     scrapped_data = {}
     for team in teams:
         scrapped_data[team] = []
@@ -38,12 +41,27 @@ def scrap_data():
         sleep(1)
         for elem in driver.find_elements_by_css_selector("div[ng-repeat='comm in match.commentary[set_innings_id]']"):
             text_content = elem.text
-            if re.match(BALL_PATTERN, text_content):
-                #print(text_content)
-                #print("---")
-                scrapped_data[team].append(text_content)
-    print(scrapped_data)
+            m = re.match(BALL_PATTERN, text_content)
+            if m:
+                ball_data = {}
+                ball_info = m.groups()[0]
+                # ball_event = text_content.lstrip(ball_info)
+                ball_event = text_content.replace(ball_info, "")
+                result = ball_event.split(",")[0]
+                story = ball_event.replace(result+", ", "")
+                ball_info = ball_info.rstrip(", ")
+                ball_info = ball_info.split("\n")
+                ball_num = ball_info[0]
+                players = ball_info[1].split(" to ")
+                ball_data["ball_num"] = ball_num
+                ball_data["bowler"] = players[0]
+                ball_data["batsman"] = players[1]
+                ball_data["result"] = result
+                ball_data["story"] = story
+                scrapped_data[team].append(ball_data)
 
+
+    print(scrapped_data)
 
 
 
